@@ -19,13 +19,13 @@ Questo repository contiene **quattro firmware alternativi**, per due tipologie d
 | **Switch Classic** | [`/fw/2016_switch_classic`](fw/2016_switch_classic) | fari (x2), coda (x2) | semplice ON/OFF in base al canale radio |
 | **Switch Xenon** | [`/fw/2016_switch_xenon`](fw/2016_switch_xenon) | fari (x2), coda (x2) | come Switch Classic, con effetto xenon in accensione sui fari |
 
-Non è disponibile un manuale ufficiale per nessuna delle quattro versioni: il funzionamento — comprese le procedure di calibrazione/programmazione — è descritto qui sotto sulla base dell'analisi diretta dei sorgenti firmware.
+Non è disponibile un manuale ufficiale per nessuna delle quattro versioni: il funzionamento — comprese le procedure di calibrazione/programmazione — è descritto qui sotto.
 
 ## 1. Il progetto
 
-SEATURTLE ha un solo connettore di ingresso dalla ricevente e 4 uscite a due poli per il collegamento diretto dei LED. L'alimentazione richiesta è compresa tra 4,5V e 6,5V, prelevata direttamente dal modello; il manuale segnala che la scheda potrebbe non funzionare correttamente con l'elettronica di serie di alcuni modelli Tamiya.
+SEATURTLE ha un solo connettore di ingresso dalla ricevente e 4 uscite a due poli per il collegamento diretto dei LED. L'alimentazione richiesta è compresa tra 4,5V e 6,5V, prelevata direttamente dal modello.
 
-Nelle versioni **Drift**, tramite l'adattatore fornito la centralina va collegata in parallelo al regolatore motore, in modo che il segnale di gas/freno arrivi sia all'ESC sia alla SEATURTLE. Nelle versioni **Switch**, l'ingresso va invece collegato a un canale libero della ricevente (tipicamente un canale ausiliario a 2 posizioni) usato semplicemente come interruttore per le luci.
+Nelle versioni **Drift**, tramite uno sdoppiatore per cavi servo, la centralina va collegata in parallelo al regolatore motore, in modo che il segnale di gas/freno arrivi sia all'ESC sia alla SEATURTLE. Nelle versioni **Switch**, l'ingresso va invece collegato a un canale libero della ricevente (tipicamente un canale ausiliario a 2 posizioni) usato semplicemente come interruttore per le luci.
 
 ## 2. Funzionamento del firmware
 
