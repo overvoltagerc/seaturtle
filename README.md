@@ -12,14 +12,14 @@ SEATURTLE è una centralina luci pensata per essere il più piccola e leggera po
 
 Questo repository contiene **quattro firmware alternativi**, per due tipologie di modello (drift / switch) in due varianti ciascuno (classic / xenon):
 
-| Firmware | Cartella | Manuale | Uscite | Note |
-|---|---|---|---|---|
-| **Drift Classic** | [`/fw/2016_drift_classic`](fw/2016_drift_classic) | [seaturtle_drift.pdf](man/seaturtle_drift.pdf) | fari, coda, retro, scarico | fari anteriori bianco caldo |
-| **Drift Xenon** | [`/fw/2016_drift_xenon`](fw/2016_drift_xenon) | *(vedi manuale Drift Classic, cambia solo l'effetto dei fari)* | fari, coda, retro, scarico | fari anteriori con effetto xenon (bianco freddo, accensione graduale) |
-| **Switch Classic** | [`/fw/2016_switch_classic`](fw/2016_switch_classic) | *(nessun manuale — funzionamento elementare, vedi sotto)* | fari (x2), coda (x2) | semplice ON/OFF in base al canale radio |
-| **Switch Xenon** | [`/fw/2016_switch_xenon`](fw/2016_switch_xenon) | *(nessun manuale — funzionamento elementare, vedi sotto)* | fari (x2), coda (x2) | come Switch Classic, con effetto xenon in accensione sui fari |
+| Firmware | Cartella | Uscite | Note |
+|---|---|---|---|
+| **Drift Classic** | [`/fw/2016_drift_classic`](fw/2016_drift_classic) | fari, coda, retro, scarico | fari anteriori bianco caldo |
+| **Drift Xenon** | [`/fw/2016_drift_xenon`](fw/2016_drift_xenon) | fari, coda, retro, scarico | fari anteriori con effetto xenon (bianco freddo, accensione graduale) |
+| **Switch Classic** | [`/fw/2016_switch_classic`](fw/2016_switch_classic) | fari (x2), coda (x2) | semplice ON/OFF in base al canale radio |
+| **Switch Xenon** | [`/fw/2016_switch_xenon`](fw/2016_switch_xenon) | fari (x2), coda (x2) | come Switch Classic, con effetto xenon in accensione sui fari |
 
-Al momento è disponibile un manuale ufficiale solo per la versione **Drift**; le versioni **Switch** non ne hanno uno dedicato perché il loro funzionamento è volutamente elementare (vedi punto 2).
+Non è disponibile un manuale ufficiale per nessuna delle quattro versioni: il funzionamento — comprese le procedure di calibrazione/programmazione — è descritto qui sotto sulla base dell'analisi diretta dei sorgenti firmware.
 
 ## 1. Il progetto
 
@@ -33,7 +33,14 @@ Nelle versioni **Drift**, tramite l'adattatore fornito la centralina va collegat
 
 Il firmware (`SeaTurtle.c`) legge il canale gas/freno dell'ESC e gestisce quattro uscite: fari anteriori (`HEAD`), luci posteriori (`TAIL`), retromarcia (`REV`) ed effetto fiammata di scarico (`EXH`, con un pattern di lampeggio "backfire" predefinito).
 
-La calibrazione è **completamente automatica**: all'accensione la centralina rileva il segnale gas, dopo qualche secondo accende le luci posteriori e chiede una breve accelerata (~1 secondo) per determinare se il canale gas è invertito o meno; completata questa fase, si accendono anche i fari anteriori e la scheda è operativa. Il valore di neutro e di finecorsa vengono salvati in EEPROM (`EEPROM_TESTED`, `EEPROM_PPMNEUTRAL`, `EEPROM_PPMFULL`). **Non è richiesta alcuna regolazione manuale.**
+**Calibrazione (`userSetup()`)**: all'accensione, dopo la sincronizzazione sul segnale PPM, il firmware controlla se il canale gas è tenuto fuori dalla zona centrale (sotto 1400µs o sopra 1600µs, cioè a fondo corsa in una direzione qualsiasi). In quel caso entra in modalità programmazione:
+
+1. Tutte le uscite si accendono (`ALL_ON()`) a indicare che la centralina è in fase di apprendimento.
+2. In base al lato verso cui il gas è tenuto premuto (avanti o indietro rispetto al centro), il firmware deduce se il canale è **invertito** (`PPM_reverse`) e insegue il valore di fondo scala finché il segnale continua ad allontanarsi dal centro.
+3. Al rilascio del gas (ritorno in zona centrale), il firmware salva in EEPROM il valore di fondo scala (`EEPROM_PPMFULL`) e, dopo una nuova sincronizzazione, il valore di neutro (`EEPROM_PPMNEUTRAL`), marcando la scheda come collaudata (`EEPROM_TESTED`).
+4. Da quel momento, a ogni accensione successiva, la centralina carica questi valori dall'EEPROM e li usa per determinare in tempo reale marcia avanti/frenata/retromarcia — senza bisogno di ripetere la calibrazione, a meno che non la si rifaccia volontariamente ripetendo la stessa procedura.
+
+**Scheda "vergine" (`hardwareTest()`)**: se la scheda non è ancora mai stata calibrata (EEPROM di fabbrica, non ancora scritta), invece di funzionare normalmente il firmware entra in un semplice loop di test hardware, che accende una singola uscita alla volta in base alla posizione istantanea del canale letto (una soglia diversa per ciascuna delle 4 uscite HEAD/TAIL/REV/EXH), utile in produzione per verificare rapidamente che scheda e collegamenti funzionino, senza dover prima eseguire la calibrazione.
 
 L'unica differenza tra le due varianti è l'effetto dei fari anteriori: **Classic** li accende semplicemente a piena luminosità (bianco caldo), mentre **Xenon** li accende con un effetto di accensione graduale a PWM (tipico delle lampade allo xeno, reso con luci bianco freddo).
 
@@ -66,9 +73,9 @@ Il PCB espone 5 pad ICSP (`VPP`, `VDD`, `GND`, `PGD`, `PGC`), con la disposizion
   <img src="assembling/icsp.png" alt="Piedinatura ICSP SEATURTLE" width="300">
 </p>
 
-Non sono richieste altre operazioni dopo il flashing:
-- nelle versioni **Drift**, la calibrazione del canale gas è automatica, come descritto al punto 2;
-- nelle versioni **Switch** non è prevista alcuna calibrazione: la scheda è già pronta all'uso.
+Non sono richieste altre operazioni dopo il flashing, ma va tenuto presente il comportamento del firmware al primo avvio:
+- nelle versioni **Drift**, appena flashata la scheda non è ancora calibrata: finché non si esegue almeno una volta la procedura di programmazione (tenere il gas a fondo, in avanti o indietro, all'accensione, e poi rilasciarlo — vedi punto 2), il firmware resta in un loop di test che si limita ad accendere un'uscita alla volta in base alla posizione del canale, utile per un rapido collaudo ma non rappresentativo del funzionamento normale;
+- nelle versioni **Switch** non è prevista alcuna calibrazione: la scheda è già pronta all'uso non appena flashata.
 
 ## 5. Il PCB
 
@@ -89,7 +96,6 @@ seaturtle/
 │   ├── 2016_drift_xenon/      # Come sopra, con effetto xenon sui fari
 │   ├── 2016_switch_classic/   # Semplice ON/OFF via canale radio
 │   └── 2016_switch_xenon/     # Come sopra, con effetto xenon sui fari
-├── man/             # Manuale utente (solo versione Drift)
 ├── ref/             # Datasheet PIC12F629/675
 ├── seaturtle.jpg
 └── seaturtle_logo.jpg
