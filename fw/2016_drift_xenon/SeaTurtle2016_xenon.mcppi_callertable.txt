@@ -1,0 +1,11 @@
+main
+	__CC2DW
+		____DoICP
+	syncPPM
+	userSetup
+		EEPROM_Write
+		syncPPM
+	EEPROM_Read
+	hardwareTest
+	____DoICP
+interrupt

@@ -1,0 +1,11 @@
+0	1	mikroCPIC1618.exe -MSF -DBG -pP12F629 -DL -O11111114 -fo4 -N"C:\Documents and Settings\tHeo\Documenti\Dropbox\RC - Centraline\SeaTurtle\fw\2016_switch_xenon\SeaTurtle2016_switch_xenon.mcppi" -SP"C:\Programmi\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Programmi\Mikroelektronika\mikroC PRO for PIC\Uses\P16\" -SP"C:\Documents and Settings\tHeo\Documenti\Dropbox\RC - Centraline\SeaTurtle\fw\2016_switch_xenon\" "SeaTurtle.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_EEPROM.mcl"	 
+hint: 0	1139	Available RAM: 48 [bytes], Available ROM: 1024 [bytes]	 
+diagnostics: 0	122	Compilation Started	SeaTurtle.c
+diagnostics: 176	123	Compiled Successfully	SeaTurtle.c
+diagnostics: 0	127	All files Compiled in 32 ms	 
+hint: 0	1144	Used RAM (bytes): 17 (35%)  Free RAM (bytes): 31 (65%)	Used RAM (bytes): 17 (35%)  Free RAM (bytes): 31 (65%)
+hint: 0	1144	Used ROM (program words): 222 (22%)  Free ROM (program words): 802 (78%)	Used ROM (program words): 222 (22%)  Free ROM (program words): 802 (78%)
+diagnostics: 0	125	Project Linked Successfully	SeaTurtle2016_switch_xenon.mcppi
+diagnostics: 0	128	Linked in 31 ms	 
+diagnostics: 0	129	Project 'SeaTurtle2016_switch_xenon.mcppi' completed: 94 ms	 
+diagnostics: 0	103	Finished successfully: 28 mar 2016, 23.04.49	SeaTurtle2016_switch_xenon.mcppi
